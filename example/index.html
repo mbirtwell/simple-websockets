@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Test websocket</title>
+    <style>
+        body {
+            max-width: 300px;
+            margin: 30px auto;
+        }
+    </style>
+</head>
+<body>
+    <h2>Test websocket</h2>
+
+    <script type="application/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script type="application/javascript">
+        function appendParagraph(text) {
+            $('body').append("<p>" + text + "</p>")
+        }
+        pongs = 0;
+        ws = new WebSocket("ws://" + location.host + "/test_path");
+        ws.onopen = function () {
+            appendParagraph("Opened socket");
+            appendParagraph("Sending: Open text");
+            ws.send("Open text");
+        };
+        ws.onmessage = function (msg) {
+            appendParagraph(msg.data);
+            pongs += 1;
+            if(pongs < 10) {
+                setTimeout(function () {
+                    appendParagraph("Sending: More text");
+                    ws.send("More text");
+                }, 1000)
+            }
+        }
+    </script>
+</body>
+</html>
