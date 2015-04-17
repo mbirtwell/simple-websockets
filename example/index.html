@@ -20,6 +20,7 @@
         }
         pongs = 0;
         ws = new WebSocket("ws://" + location.host + "/test_path");
+        appendParagraph("Opening socket");
         ws.onopen = function () {
             appendParagraph("Opened socket");
             appendParagraph("Sending: Open text");

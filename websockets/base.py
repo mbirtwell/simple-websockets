@@ -2,12 +2,14 @@ from hashlib import sha1
 from base64 import b64encode
 import struct
 
+from websockets.interface import IWebSocket
+
 
 class WebSocketProtocolError(Exception):
     pass
 
 
-class WebSocketBase(object):
+class WebSocketBase(IWebSocket):
     magic = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11'
 
     def _get_header(self, key):
