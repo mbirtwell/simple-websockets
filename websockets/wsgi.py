@@ -32,3 +32,12 @@ class WebSocket(WebSocketBase):
             handler(websocket=ws, **kwargs)
             return []
         return application
+
+    @staticmethod
+    def patch_wsgiref_server():
+        import wsgiref.util
+        wsgiref.util._hoppish = {
+            'keep-alive':1, 'proxy-authenticate':1,
+            'proxy-authorization':1, 'te':1, 'trailers':1, 'transfer-encoding':1,
+        }.__contains__
+

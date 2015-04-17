@@ -1,3 +1,16 @@
+""" Sample generic app
+
+Tested with werkzeug server and uWSGI probably also works with wsgiref.
+
+Werkzeug
+See run_werkzeug_server.py for how to launch this with werkzeug.
+
+uWSGI
+To run this with uWSGI try:
+WSGI_SERVER=uwsgi PYTHON=python3 uwsgi --http :8080 --http-websockets --wsgi-file /vagrant/example/example_app.py
+
+"""
+import os
 from os.path import dirname
 
 import static
@@ -5,12 +18,16 @@ from werkzeug.exceptions import HTTPException
 from werkzeug.routing import Map, Rule
 from werkzeug.wrappers import Request
 
-from websockets.uwsgi import WebSocket
+from websockets import get_impl_for_wsgi_server
+
+server_name = os.environ['WSGI_SERVER']
+WebSocket = get_impl_for_wsgi_server(server_name)
+
 
 def web_socket_handler(websocket):
     while True:
         msg = websocket.read_message()
-        websocket.send_message("Pong from uwsgi: " + msg)
+        websocket.send_message("Pong from {}: {}".format(server_name, msg))
 
 
 url_map = Map([

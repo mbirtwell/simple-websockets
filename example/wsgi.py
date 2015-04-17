@@ -7,20 +7,17 @@ hop-by-hop headers which include Connection and Upgrade. Well
 we need to return these to headers or else it just ain't gonna
 work so we monkeypatch the wsgiref.util._hoppish function that
 checks for this.
+See websockets.wsgi.WebSocker.path_wsgiref_server
 
 """
 from socketserver import ThreadingMixIn
 from wsgiref.simple_server import make_server, WSGIServer
-import wsgiref.util
 
 import static
 
-from websockets.wsgi import WebSocket
+from websockets import get_impl_for_wsgi_server
 
-wsgiref.util._hoppish = {
-    'keep-alive':1, 'proxy-authenticate':1,
-    'proxy-authorization':1, 'te':1, 'trailers':1, 'transfer-encoding':1,
-}.__contains__
+WebSocket = get_impl_for_wsgi_server('wsgiref')
 
 def web_socket_handler(websocket):
     while True:
