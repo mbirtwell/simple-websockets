@@ -1,4 +1,5 @@
-import http.client
+from six.moves import http_client
+
 from websockets.base import WebSocketBase
 
 
@@ -14,7 +15,7 @@ class WebSocket(WebSocketBase):
         return self._environ['HTTP_' + key.upper().replace('-', '_')]
 
     def _do_handshake(self, code, headers):
-        status = "%d %s" % (code, http.client.responses[code])
+        status = "%d %s" % (code, http_client.responses[code])
         self._write = self._start_response(status, list(headers.items()))
         self._write(b"")
 

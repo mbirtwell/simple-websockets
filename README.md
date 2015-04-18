@@ -13,7 +13,6 @@ What's not done
 * Receiving multi-frame messages
 * Sending multi-frame messages
 * All the control packet types.
-* Python 2 support (Yeah I mean it's only python 3)
 
 Why?
 ----

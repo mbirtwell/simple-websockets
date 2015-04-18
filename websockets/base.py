@@ -2,6 +2,8 @@ from hashlib import sha1
 from base64 import b64encode
 import struct
 
+import six
+
 from websockets.interface import IWebSocket
 
 
@@ -31,20 +33,22 @@ class WebSocketBase(IWebSocket):
         self._do_handshake(101, {
             'Upgrade': 'websocket',
             'Connection': 'Upgrade',
-            'Sec-WebSocket-Accept': digest.decode('latin-1'),
+            # str and decode required to work in both python 2 and 3
+            'Sec-WebSocket-Accept': str(digest.decode('latin-1')),
         })
 
     def read_frame(self):
 
-        hdr = self._raw_read(2)
+        hdr0 = six.byte2int(self._raw_read(1))
         # bit 0 is fin
-        fin = bool(hdr[0] & 0x80)
+        fin = bool(hdr0 & 0x80)
         # bits 1-3 are reserved
         # bit 4-7 are op code
-        op = hdr[0] & 0x0F
+        op = hdr0 & 0x0F
+        hdr1 = six.byte2int(self._raw_read(1))
         # bit 8 is masked
-        masked = bool(hdr[1] & 0x80)
-        length = hdr[1] & 0x7F
+        masked = bool(hdr1 & 0x80)
+        length = hdr1 & 0x7F
 
         if not fin:
             raise NotImplementedError("Not implemented multi-frame messages")
@@ -55,10 +59,10 @@ class WebSocketBase(IWebSocket):
             length = struct.unpack(">H", self._raw_read(2))[0]
         elif length == 127:
             length = struct.unpack(">Q", self._raw_read(8))[0]
-        masks = self._raw_read(4)
+        masks = list(six.iterbytes(self._raw_read(4)))
 
         decoded = bytearray()
-        for byte in self._raw_read(length):
+        for byte in six.iterbytes(self._raw_read(length)):
             decoded.append(byte ^ masks[len(decoded) % 4])
 
         if op == 0:
@@ -82,15 +86,15 @@ class WebSocketBase(IWebSocket):
         fin = True
         op = 0x1
         hdr = int(fin) << 7 | op
-        self._raw_write(bytes([hdr]))
+        self._raw_write(six.int2byte(hdr))
         message = message.encode('utf-8')
         length = len(message)
         if length <= 125:
-            self._raw_write(bytes([length]))
+            self._raw_write(six.int2byte(length))
         elif 126 <= length <= 0xFFFF:
-            self._raw_write(bytes([126]))
+            self._raw_write(six.int2byte(126))
             self._raw_write(struct.pack(">H", length))
         else:
-            self._raw_write(bytes([127]))
+            self._raw_write(six.int2byte(127))
             self._raw_write(struct.pack(">Q", length))
         self._raw_write(message)

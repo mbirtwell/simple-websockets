@@ -10,7 +10,7 @@ checks for this.
 See websockets.wsgi.WebSocker.path_wsgiref_server
 
 """
-from socketserver import ThreadingMixIn
+from six.moves.socketserver import ThreadingMixIn
 from wsgiref.simple_server import make_server, WSGIServer
 
 import static
@@ -22,7 +22,7 @@ WebSocket = get_impl_for_wsgi_server('wsgiref')
 def web_socket_handler(websocket):
     while True:
         msg = websocket.read_message()
-        websocket.send_message("Pong: " + msg)
+        websocket.send_message("Pong from wsgiref: " + msg)
 
 
 web_socket_application = WebSocket.make_application(web_socket_handler)
@@ -42,6 +42,6 @@ if __name__ == '__main__':
         application,
         server_class=type(
             "ThreadedWSGIServer",
-            (ThreadingMixIn, WSGIServer),
+            (ThreadingMixIn, WSGIServer, object),
             {})
     ).serve_forever()

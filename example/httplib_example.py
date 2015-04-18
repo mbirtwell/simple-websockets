@@ -1,6 +1,8 @@
 """Example use of my websocket class with http.server
 
 Integrates nicely with the HTTP server in http.server.
+
+Python 3 only
 """
 from http.server import SimpleHTTPRequestHandler, HTTPServer, test
 from socketserver import ThreadingMixIn

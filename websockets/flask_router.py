@@ -4,7 +4,7 @@ from websockets.wsgi import WebSocket
 
 class AppResponse(Response):
     def __init__(self, app):
-        super().__init__()
+        super(AppResponse, self).__init__()
         self._app = app
 
     def __call__(self, environ, start_response):
