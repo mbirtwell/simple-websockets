@@ -26,8 +26,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provision "shell" do |s|
     s.inline = <<SCRIPT
 apt-get update
-apt-get install -y python3 python3-pip build-essential python3-dev libssl-dev
-pip3 install uwsgi static werkzeug
+apt-get install -y python-pip python3-pip python-dev python3-dev build-essential libssl-dev
+pip2 install static werkzeug gunicorn gevent-websocket
+pip2 install  --install-option="--install-scripts=/home/vagrant/bin2/" uwsgi
+pip2 install -e /vagrant/
+pip3 install static werkzeug
+pip3 install  --install-option="--install-scripts=/home/vagrant/bin3/" uwsgi
 pip3 install -e /vagrant/
 SCRIPT
   end

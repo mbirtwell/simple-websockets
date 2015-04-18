@@ -6,8 +6,14 @@ Werkzeug
 See run_werkzeug_server.py for how to launch this with werkzeug.
 
 uWSGI
-To run this with uWSGI try:
-WSGI_SERVER=uwsgi PYTHON=python3 uwsgi --http :8080 --http-websockets --wsgi-file /vagrant/example/example_app.py
+On the vagrant box defined here this can be started as so (python 3):
+WSGI_SERVER=uwsgi bin3/uwsgi --http :8080 --http-websockets --wsgi-file /vagrant/example/example_app.py -p 3
+Or as so (python 2):
+WSGI_SERVER=uwsgi bin2/uwsgi --http :8080 --http-websockets --wsgi-file /vagrant/example/example_app.py -p 3
+
+GUnicorn + gevent-websocket
+Try:
+(cd /vagrant/example/ && WSGI_SERVER=gevent gunicorn -k "geventwebsocket.gunicorn.workers.GeventWebSocketWorker" example_app:application -b 0.0.0.0:8000)
 
 """
 import os
@@ -32,7 +38,7 @@ def web_socket_handler(websocket):
 
 url_map = Map([
     Rule('/', endpoint='static'),
-    Rule('/test_path', endpoint='pong_server')
+    Rule('/test_path', endpoint='pong_server'),
 ])
 
 web_socket_application = WebSocket.make_application(web_socket_handler)
