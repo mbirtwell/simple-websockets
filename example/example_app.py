@@ -16,6 +16,7 @@ Try:
 (cd /vagrant/example/ && WSGI_SERVER=gevent gunicorn -k "geventwebsocket.gunicorn.workers.GeventWebSocketWorker" example_app:application -b 0.0.0.0:8000)
 
 """
+import logging
 import os
 from os.path import dirname
 
@@ -26,13 +27,18 @@ from werkzeug.wrappers import Request
 
 from websockets import get_impl_for_wsgi_server
 
+log = logging.getLogger(__name__)
 server_name = os.environ['WSGI_SERVER']
 WebSocket = get_impl_for_wsgi_server(server_name)
 
 
 def web_socket_handler(websocket):
-    while True:
+    for _ in range(3):
         msg = websocket.read_message()
+        if msg is None:
+            log.info("Socket closed")
+            return
+        log.info("Got message: %s", msg)
         websocket.send_message("Pong from {}: {}".format(server_name, msg))
 
 

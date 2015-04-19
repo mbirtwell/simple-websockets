@@ -12,7 +12,15 @@ class WebSocketProtocolError(Exception):
 
 
 class WebSocketBase(IWebSocket):
+
     magic = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11'
+
+    def __init__(self):
+        self._closed = False
+
+    @property
+    def closed(self):
+        return self._closed
 
     def _get_header(self, key):
         raise NotImplementedError()
@@ -71,14 +79,17 @@ class WebSocketBase(IWebSocket):
             return decoded.decode('utf-8')
         elif op == 2:
             return bytes(decoded)
-        elif op in range(8, 11):
+        elif op == 8:
+            self._closed = True
+            return None
+        elif op in range(9, 11):
             raise NotImplementedError("Unimplemented op code")
         else:
             raise WebSocketProtocolError("Unexpeced reserved op")
 
     def read_message(self):
         message = None
-        while message is None:
+        while message is None and not self.closed:
             message = self.read_frame()
         return message
 

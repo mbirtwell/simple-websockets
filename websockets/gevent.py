@@ -15,6 +15,10 @@ class WebSocket(IWebSocket):
         self.environ = environ
         self.ws = environ["wsgi.websocket"]
 
+    @property
+    def closed(self):
+        return self.ws.closed
+
     def send_message(self, message):
         return self.ws.send(message)
 

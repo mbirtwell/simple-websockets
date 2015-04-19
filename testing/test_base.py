@@ -9,6 +9,7 @@ from websockets.base import WebSocketBase
 class FakeWebSocket(WebSocketBase):
 
     def __init__(self, headers, input_data):
+        super(FakeWebSocket, self).__init__()
         self.request_headers = headers
         self.input_data = input_data
         self.response_code = None
@@ -72,6 +73,33 @@ class TestReceiveFrame(unittest.TestCase):
 
         self.assertEqual(frame, "hello")
 
+    def test_close_frame_marks_socket_closed(self):
+        ws = FakeWebSocket({}, b"\x88\x80\x00\x00\x00\x00")
+
+        self.assertFalse(ws.closed)
+
+        frame = ws.read_frame()
+
+        self.assertIsNone(frame)
+        self.assertTrue(ws.closed)
+
+
+class TestReadMessage(unittest.TestCase):
+
+    def test_recieve_text_message(self):
+        ws = FakeWebSocket({}, b"\x81\x85\x00\x00\x00\x00hello")
+
+        frame = ws.read_message()
+
+        self.assertEqual(frame, "hello")
+
+    def test_recieve_close(self):
+        ws = FakeWebSocket({}, b"\x88\x80\x00\x00\x00\x00")
+
+        frame = ws.read_message()
+
+        self.assertIsNone(frame)
+        self.assertTrue(ws.closed)
 
 class TestSendMessage(unittest.TestCase):
 

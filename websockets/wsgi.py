@@ -1,7 +1,9 @@
+import logging
 from six.moves import http_client
 
 from websockets.base import WebSocketBase
 
+log = logging.getLogger(__name__)
 
 class WebSocket(WebSocketBase):
 
